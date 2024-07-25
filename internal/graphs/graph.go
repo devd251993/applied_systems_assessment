@@ -12,6 +12,11 @@ var (
 	graphId     int
 )
 
+type GraphDetails struct {
+	Reprentation string
+	NoOfNode     int
+}
+
 func init() {
 	MapOfGraphs = make(map[int]*graph.Mutable)
 	graphId = 0
@@ -44,4 +49,14 @@ func FetchGraph(graphId int) *graph.Mutable {
 	}
 
 	return mutableGraph
+}
+
+func FetchGraphDetails(graphId int) *GraphDetails {
+	if mutableGraph, ok := MapOfGraphs[graphId]; ok {
+		return &GraphDetails{
+			Reprentation: mutableGraph.String(),
+			NoOfNode:     mutableGraph.Order(),
+		}
+	}
+	return nil
 }

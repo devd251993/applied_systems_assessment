@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -8,12 +9,32 @@ import (
 	"github.com/devd251993/applied_systems_assessment/internal/graphs"
 )
 
-func GetGraphHandler(w http.ResponseWriter, r *http.Request) {
+func GetGraphDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
+
+	graphId, err := strconv.Atoi(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("invalid graph id"))
+		return
+	}
+	graphDetails := graphs.FetchGraphDetails(graphId)
+	if graphDetails == nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("graph not found"))
+		return
+	}
+
+	details, err := json.Marshal(graphDetails)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	log.Printf("got get graph request with id : %s\n", id)
 
 	w.WriteHeader(http.StatusOK)
+	w.Write(details)
 }
 
 func CreateGraphHandler(w http.ResponseWriter, r *http.Request) {
