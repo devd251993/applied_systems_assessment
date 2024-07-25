@@ -52,11 +52,21 @@ func FetchGraph(graphId int) *graph.Mutable {
 }
 
 func FetchGraphDetails(graphId int) *GraphDetails {
-	if mutableGraph, ok := MapOfGraphs[graphId]; ok {
-		return &GraphDetails{
-			Reprentation: mutableGraph.String(),
-			NoOfNode:     mutableGraph.Order(),
-		}
+	var mutableGraph *graph.Mutable
+	var ok bool
+	if mutableGraph, ok = MapOfGraphs[graphId]; !ok {
+		return nil
 	}
-	return nil
+
+	return &GraphDetails{
+		Reprentation: mutableGraph.String(),
+		NoOfNode:     mutableGraph.Order(),
+	}
+}
+
+func GetShortestPath(graphId, source, destination int) ([]int, int64) {
+	if mutableGraph, ok := MapOfGraphs[graphId]; ok {
+		return graph.ShortestPath(mutableGraph, source, destination)
+	}
+	return nil, 0
 }

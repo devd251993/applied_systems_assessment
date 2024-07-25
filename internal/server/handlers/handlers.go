@@ -45,6 +45,7 @@ func CreateGraphHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("invalid number of vertices got")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Please enter valid number of vertices"))
+		return
 	}
 	graphId := graphs.CreateMap(noOfVertices)
 	outputString := "Graph with id: " + strconv.Itoa(graphId)
@@ -61,24 +62,28 @@ func AddEdgeToGraph(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("invalid source node"))
+		return
 	}
 
 	destination, err := strconv.Atoi(dest)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("invalid destination node"))
+		return
 	}
 
 	graphID, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("invalid graphId"))
+		return
 	}
 
 	err = graphs.AddEdgeToGraph(graphID, source, destination)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("graph not found"))
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -87,9 +92,53 @@ func AddEdgeToGraph(w http.ResponseWriter, r *http.Request) {
 func GetShortestPathHandler(w http.ResponseWriter, r *http.Request) {
 	start := r.URL.Query().Get("start")
 	end := r.URL.Query().Get("end")
+	id := r.URL.Query().Get("graphId")
 
-	log.Printf("got shortest path graph request with start %s and end %s\n", start, end)
+	source, err := strconv.Atoi(start)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("invalid start node"))
+		return
+	}
+
+	destination, err := strconv.Atoi(end)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("invalid end node"))
+		return
+	}
+	graphID, err := strconv.Atoi(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("invalid graph id"))
+		return
+	}
+
+	path, distance := graphs.GetShortestPath(graphID, source, destination)
+	if path == nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("unable to found shortest path"))
+		return
+	}
+	type Output struct {
+		Path     []int
+		Distance int64
+	}
+
+	output := Output{
+		Path:     path,
+		Distance: distance,
+	}
+
+	response_data, err := json.Marshal(&output)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("failed to write data"))
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
+	w.Write(response_data)
 }
 
 func DeleteGraphHandler(w http.ResponseWriter, r *http.Request) {
