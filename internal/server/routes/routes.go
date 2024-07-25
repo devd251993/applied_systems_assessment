@@ -12,7 +12,9 @@ import (
 func InitRoutes() *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/graph/create", handlers.CreateGraphHandler).Methods("POST")
+	router.HandleFunc("/graph/create", handlers.CreateGraphHandler).Queries("vertices", "{vertices}").Methods("POST")
+	router.HandleFunc("/graph/add-edge", handlers.AddEdgeToGraph).Queries("graphId", "{graphId}").Queries("source", "{source}").
+		Queries("destination", "{destination}").Methods("PUT")
 	router.HandleFunc("/graph/get", handlers.GetGraphHandler).Queries("id", "{id}").Methods("GET")
 	router.HandleFunc("/graph/shortest-path", handlers.GetShortestPathHandler).Queries("start", "{start}").Queries("end", "{end}").Methods("GET")
 	router.HandleFunc("/graph/delete", handlers.DeleteGraphHandler).Queries("id", "{id}").Methods("DELETE")
