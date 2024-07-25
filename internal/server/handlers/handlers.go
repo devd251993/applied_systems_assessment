@@ -3,6 +3,9 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/devd251993/applied_systems_assessment/internal/graphs"
 )
 
 func GetGraphHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +18,10 @@ func GetGraphHandler(w http.ResponseWriter, r *http.Request) {
 
 func CreateGraphHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("got create graph request")
+	graphId := graphs.CreateMap()
+	outputString := "Graph with id: " + strconv.Itoa(graphId)
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(outputString))
 }
 
 func GetShortestPathHandler(w http.ResponseWriter, r *http.Request) {

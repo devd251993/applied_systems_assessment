@@ -1,4 +1,4 @@
-package server
+package routes
 
 import (
 	"log"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/devd251993/applied_systems_assessment/internal/handlers"
+	"github.com/devd251993/applied_systems_assessment/internal/server/handlers"
 )
 
 func InitRoutes() *mux.Router {
