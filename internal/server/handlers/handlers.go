@@ -9,6 +9,12 @@ import (
 	"github.com/devd251993/applied_systems_assessment/internal/graphs"
 )
 
+var graphImpl *graphs.GraphImpl
+
+func InitHandlers() {
+	graphImpl = graphs.InitGraph()
+}
+
 func GetGraphDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 
@@ -18,7 +24,7 @@ func GetGraphDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("invalid graph id"))
 		return
 	}
-	graphDetails := graphs.FetchGraphDetails(graphId)
+	graphDetails := graphImpl.FetchGraphDetails(graphId)
 	if graphDetails == nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("graph not found"))
@@ -47,7 +53,7 @@ func CreateGraphHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Please enter valid number of vertices"))
 		return
 	}
-	graphId := graphs.CreateMap(noOfVertices)
+	graphId := graphImpl.CreateMap(noOfVertices)
 	outputString := "Graph with id: " + strconv.Itoa(graphId)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(outputString))
@@ -79,7 +85,7 @@ func AddEdgeToGraph(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = graphs.AddEdgeToGraph(graphID, source, destination)
+	err = graphImpl.AddEdgeToGraph(graphID, source, destination)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("graph not found"))
@@ -114,7 +120,7 @@ func GetShortestPathHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path, distance := graphs.GetShortestPath(graphID, source, destination)
+	path, distance := graphImpl.GetShortestPath(graphID, source, destination)
 	if path == nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("unable to found shortest path"))
@@ -143,7 +149,18 @@ func GetShortestPathHandler(w http.ResponseWriter, r *http.Request) {
 
 func DeleteGraphHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-
+	graphId, err := strconv.Atoi(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("invalid graph id"))
+		return
+	}
+	err = graphImpl.DeleteGraph(graphId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(err.Error()))
+		return
+	}
 	log.Printf("got delete graph request with id : %s\n", id)
 	w.WriteHeader(http.StatusOK)
 }

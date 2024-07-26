@@ -7,6 +7,7 @@ import (
 )
 
 func TestCreateMap(t *testing.T) {
+	testGraphImpl := graphs.InitGraph()
 	testCases := []struct {
 		desc             string
 		numberOfVertices int
@@ -18,8 +19,8 @@ func TestCreateMap(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			graphId := graphs.CreateMap(tC.numberOfVertices)
-			graph := graphs.FetchGraph(graphId)
+			graphId := testGraphImpl.CreateMap(tC.numberOfVertices)
+			graph := testGraphImpl.FetchGraph(graphId)
 			if graph == nil || graph.Order() != tC.numberOfVertices {
 				t.Errorf("error creating graph")
 			}
@@ -28,7 +29,8 @@ func TestCreateMap(t *testing.T) {
 }
 
 func TestAddEdgeToGraph(t *testing.T) {
-	testGraphId := graphs.CreateMap(3)
+	testGraphImpl := graphs.InitGraph()
+	testGraphId := testGraphImpl.CreateMap(3)
 	type args struct {
 		source  int
 		dest    int
@@ -60,7 +62,7 @@ func TestAddEdgeToGraph(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			err := graphs.AddEdgeToGraph(tC.args.graphId, tC.args.source, tC.args.dest)
+			err := testGraphImpl.AddEdgeToGraph(tC.args.graphId, tC.args.source, tC.args.dest)
 			if tC.wantError != (err != nil) {
 				t.Errorf("Wanted Error : %v but got Error: %v", tC.wantError, !tC.wantError)
 			}
